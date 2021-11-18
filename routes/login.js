@@ -6,6 +6,10 @@ const createError= require('http-errors')
 
 const route = express.Router();
 
+route.get('/', async(req,res)=>{
+    res.send('works');
+})
+
 route.post('/', async(req,res,next) =>{
 
     try{ 

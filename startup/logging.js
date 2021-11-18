@@ -23,5 +23,5 @@ process.on('unhandledRejection',(ex) => {
 });
 
 winston.add(new winston.transports.File({ filename:'logfile.log'}));
-winston.add(new winston.transports.MongoDB({db:'mongodb://localhost/vidly', useUnifiedTopology: true}));
+// winston.add(new winston.transports.MongoDB({db:process.env.MongoDB_CST, useUnifiedTopology: true}));
 }
