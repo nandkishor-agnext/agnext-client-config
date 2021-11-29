@@ -1,11 +1,11 @@
 const express = require('express');
-const { CommodityRejectionReason }= require('../models/commodity-rejectioin-reason');
+const { RejectionReason }= require('../models/rejectioin-reason');
 
 const routers = express.Router();
 
 routers.get('/', async(req,res) =>{
     try{
-        const reasons = await CommodityRejectionReason.find();
+        const reasons = await RejectionReason.find();
         res.send(reasons);
     }
     catch(err){
@@ -15,7 +15,7 @@ routers.get('/', async(req,res) =>{
 
 routers.get('/:id', async(req,res) =>{
     try{
-        const reason = await CommodityRejectionReason.findById(req.params.id);
+        const reason = await RejectionReason.findById(req.params.id);
         if(!reason) return res.status(401).send('Rejection Reason not found.');
         res.send(reason);
     }
@@ -27,10 +27,8 @@ routers.get('/:id', async(req,res) =>{
 routers.post('/', async(req,res) => {
 
     try{
-        let reason = new CommodityRejectionReason({
-            commodityId:req.body.commodityId,
-            commodityName:req.body.commodityName,
-            name:req.body.name
+        let reason = new RejectionReason({            
+            reason:req.body.reason
         });
     
         reason = await reason.save();
@@ -45,12 +43,11 @@ routers.post('/', async(req,res) => {
 routers.put('/:id', async(req,res)=>{
     try{
 
-    let reason = await CommodityRejectionReason.findById(req.params.id);
+    let reason = await RejectionReason.findById(req.params.id);
     if(!reason) return res.status(401).send('Rejection Reason not found.');
 
-    reason.commodityId=req.body.commodityId;
-    reason.commodityName=req.body.commodityName;
-    reason.name=req.body.name;
+    
+    reason.reason=req.body.reason;
 
     reason = await reason.save();
     res.send(reason);
@@ -58,11 +55,11 @@ routers.put('/:id', async(req,res)=>{
     catch(err){
         res.status(500).send(err.message);
     }
-})
+});
 
 routers.delete('/:id',async(req,res) =>{
     try{
-        let reason = await CommodityRejectionReason.findByIdAndDelete(req.params.id);
+        let reason = await RejectionReason.findByIdAndDelete(req.params.id);
         if(!reason) return res.status(401).send('Reason not found.');
         reason.save();
         res.send({status:true});
@@ -70,6 +67,6 @@ routers.delete('/:id',async(req,res) =>{
     catch(err){
         res.status(500).send(err.message);
     }
-})
+});
 
 module.exports = routers;

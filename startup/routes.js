@@ -3,7 +3,8 @@ const users = require('../routes/users');
 const commoditycategory = require('../routes/commodity-category');
 const commodity = require('../routes/commodity');
 const variety = require("../routes/variety");
-const commodityRejectionReason=require('../routes/commodity-rejection-reason');
+const RejectionReason=require('../routes/rejection-reason');
+const analytic = require("../routes/analytic")
 
 
 module.exports =function(app){
@@ -13,5 +14,6 @@ app.use('/api/users',users);
 app.use('/api/commoditycategory',commoditycategory);
 app.use('/api/commodities',commodity);
 app.use('/api/vareities',variety);
-app.use('/api/commodityrejectionreason',commodityRejectionReason);
+app.use('/api/rejectionreason',RejectionReason);
+app.use('/api/analytic',analytic);
 };
