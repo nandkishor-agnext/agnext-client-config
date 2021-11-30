@@ -1,32 +1,46 @@
 const express = require('express');
 
 const {Commodity} = require('../models/commodity');
+const status = require('../constants/responseStatus');
 
 const routers = express.Router();
 
-routers.get('/', async (req,res) => {
+routers.get('/', async (req,res,next) => {
     try{
         const commodities = await Commodity.find();
-        res.send(commodities);
+        req.responseObject = commodities;
+        req.responseObjectCount = commodities.length;
+        req.responseStatus = status.SUCCESS;
+        req.responseStatusCode = 200;   
+        next();
     }
     catch(err){
-        res.status(500).send(err.message);
+        res.status(500).json({
+            status: status.ERROR,            
+            message:err.message
+          });
     }
     
 });
 
-routers.get('/:id', async (req,res) => {
+routers.get('/:id', async (req,res,next) => {
     try{
-        const category = await Commodity.findById(req.params.id);
-        if(!category) return res.status(401).send('Commodity Not Found');
-        res.send(category);
+        const commodity = await Commodity.findById(req.params.id);
+        if(!commodity) return res.status(401).send('Commodity Not Found');
+        req.responseObject = commodity;        
+        req.responseStatus = status.SUCCESS;
+        req.responseStatusCode = 200;
+        next();
     }
     catch(err){
-        res.status(500).send(err.message);
+        res.status(500).json({
+            status: status.ERROR,            
+            message:err.message
+          });
     }
 })
 
-routers.post('/', async (req,res) =>{
+routers.post('/', async (req,res,next) =>{
 
     try{
         const commodity = new Commodity({
@@ -37,15 +51,21 @@ routers.post('/', async (req,res) =>{
         });
 
        const newCommodity = await commodity.save();
-       res.send(newCommodity);
+       req.responseObject = newCommodity;        
+        req.responseStatus = status.SUCCESS;
+        req.responseStatusCode = 201;
+        next();
     }
     catch(err){
-        res.status(500).send(err.message);
+        res.status(500).json({
+            status: status.ERROR,            
+            message:err.message
+          });
     }
     
 })
 
-routers.put('/:id', async(req,res) =>{
+routers.put('/:id', async(req,res,next) =>{
     try{
     let commodity = await Commodity.findById(req.params.id);
     if(!commodity) return res.status(401).send('Commodity Not Found');
@@ -53,23 +73,33 @@ routers.put('/:id', async(req,res) =>{
     commodity.categoryName = req.body.categoryName,
     commodity.name = req.body.name;
     commodity = await commodity.save();
-    res.send(commodity);
+    req.responseObject = commodity;        
+    req.responseStatus = status.SUCCESS;
+    req.responseStatusCode = 200;
+    next();
     }
     catch(err){
         
-        res.status(500).send(err.message);
+        res.status(500).json({
+            status: status.ERROR,            
+            message:err.message
+          });
     }
 });
 
-routers.delete('/:id', async(req,res) =>{
+routers.delete('/:id', async(req,res,next) =>{
     try{
         const commodity = await Commodity.findByIdAndDelete(req.params.id);
         if(!commodity) return res.status(401).send('Commodity Not Found');
-        commodity.save();
-        res.send({status:true});
+        req.responseStatus = status.SUCCESS;
+        req.responseStatusCode = 204;
+        next();
     }
     catch(err){
-        res.status(500).send(err.message);
+        res.status(500).json({
+            status: status.ERROR,            
+            message:err.message
+          });
     }
     
 })

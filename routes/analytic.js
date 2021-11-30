@@ -1,30 +1,50 @@
 const express = require("express");
 const { Analytic } = require("../models/analytic");
+const status = require('../constants/responseStatus');
+
 
 const routers = express.Router();
 
-routers.get('/', async(req,res) =>{
+routers.get('/', async(req,res,next) =>{
     try{
         const analytics = await Analytic.find();
-        res.send(analytics);
+
+        req.responseObject = analytics;
+        req.responseObjectCount = analytics.length;
+        req.responseStatus = status.SUCCESS;
+        req.responseStatusCode = 200;    
+
+       next();
     }
     catch(err){
-        res.status(500).send(err.message);
+        
+        res.status(500).json({
+            status: status.ERROR,            
+            message:err.message
+          });
     }    
 });
 
-routers.get('/:id', async(req,res) =>{
+routers.get('/:id', async(req,res,next) =>{
     try{
         const analytic = await Analytic.findOne({ _id: req.params.id});
         if(!analytic) return res.status(401).send('Data not found.');
-        res.send(analytic);
+        
+        req.responseObject = analytic;        
+        req.responseStatus = status.SUCCESS;
+        req.responseStatusCode = 200;
+        next();
     }
     catch(err){
-        res.status(500).send(err.message);
+       
+       res.status(500).json({
+        status: status.ERROR,            
+        message:err.message
+      });
     }    
 });
 
-routers.post('/', async(req,res) => {
+routers.post('/', async(req,res,next) => {
 
     try{
         let analytic = new Analytic({            
@@ -34,15 +54,22 @@ routers.post('/', async(req,res) => {
         });
     
         analytic = await analytic.save();
-        res.send(analytic);
+        req.responseObject = analytic;        
+        req.responseStatus = status.SUCCESS;
+        req.responseStatusCode = 201;
+        next();
     }
     catch(err){
-        res.status(500).send(err.message);
+       
+       res.status(500).json({
+        status: status.ERROR,            
+        message:err.message
+      });
     }  
 
 });
 
-routers.put('/:id', async(req,res)=>{
+routers.put('/:id', async(req,res,next)=>{
     try{
 
     let analytic = await Analytic.findById(req.params.id);
@@ -54,23 +81,36 @@ routers.put('/:id', async(req,res)=>{
     analytic.toleranceLimit=req.body.toleranceLimit;
 
     analytic = await analytic.save();
-    res.send(analytic);
+    req.responseObject = analytic;        
+    req.responseStatus = status.SUCCESS;
+    req.responseStatusCode = 200;
+    next();
 
     }
     catch(err){
-        res.status(500).send(err.message);
+      
+      res.status(500).json({
+        status: status.ERROR,            
+        message:err.message
+      });
     }
 });
 
-routers.delete('/:id',async(req,res) =>{
+routers.delete('/:id',async(req,res,next) =>{
     try{
         let analytic = await Analytic.findByIdAndDelete(req.params.id);
         if(!analytic) return res.status(401).send('Data not found.');
-        analytic.save();
-        res.send({status:true});
+       
+        req.responseStatus = status.SUCCESS;
+        req.responseStatusCode = 204;
+        next();
     }
     catch(err){
-        res.status(500).send(err.message);
+       
+        res.status(500).json({
+        status: status.ERROR,            
+        message:err.message
+      });
     }
 });
 

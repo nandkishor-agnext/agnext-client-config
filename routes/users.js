@@ -21,6 +21,7 @@ route.post('/', async(req,res) =>{
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(user.password,salt);
         user = await user.save();
+        //const token = user.getAuthToken();
         res.send({name:user.name,_id:user._id});
         
     }
