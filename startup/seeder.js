@@ -14,7 +14,7 @@ const importData = async () => {
         const users =[{
            name:"Admin",
            email:"admin@agnext.in",
-           password:"Temp123" 
+           password:"Config123!" 
         }]
 
         const salt = await bcrypt.genSalt(10);
