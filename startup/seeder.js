@@ -1,12 +1,15 @@
+require('dotenv').config();
 const mongoose = require("mongoose");
 const {User} = require('../models/user');
 const bcrypt = require('bcrypt');
 
 // Get connection to DB
+// mongoose.connect(process.env.MongoDB_CST)//'mongodb://localhost/clientconfig'
+// .then(() => console.log("seeder connected to mongo"))
+// .catch((err) => console.log('seeder mongo db connection faild',err));
 mongoose.connect(process.env.MongoDB_CST)//'mongodb://localhost/clientconfig'
-.then(() => console.log("seeder connected to mongo"))
-.catch((err) => console.log('seeder mongo db connection faild',err));
-
+.then(() => console.log("connected to mongo"))
+.catch((err) => console.log('mongo db connection faild',err));
 
   // IMPORT DATA INTO DB
 const importData = async () => {
