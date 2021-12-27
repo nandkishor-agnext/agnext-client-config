@@ -17,7 +17,8 @@ const importData = async () => {
         const users =[{
            name:"Admin",
            email:"admin@agnext.in",
-           password:"Config123!" 
+           password:"Config123!",
+           mobile:"7986233369"
         }]
 
         const salt = await bcrypt.genSalt(10);
@@ -27,6 +28,7 @@ const importData = async () => {
       
       console.log('Data successfully loaded!');
     } catch (err) {
+      console.log('Data successfully loaded!'+err);
       console.log(err);
     }
     process.exit();

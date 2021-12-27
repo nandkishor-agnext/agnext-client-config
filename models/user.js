@@ -17,6 +17,17 @@ const userSchema = new mongoose.Schema({
         type:String,
         minlength:3,
         maxlength:500
+    },
+
+    mobile:{
+        type:String,
+        minlength:10,
+        maxlength:11
+    },
+    creationdate: { type: Date, default: Date.now },
+    isactive:{
+        type:Boolean,
+        default:false
     }
 })
 

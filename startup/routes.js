@@ -1,6 +1,7 @@
 const authlogin = require('../routes/login');
 const users = require('../routes/users');
 const customer = require('../routes/customer');
+const customercommodities = require('../routes/customercommodities');
 const commoditycategory = require('../routes/commodity-category');
 const commodity = require('../routes/commodity');
 const variety = require("../routes/variety");
@@ -21,4 +22,5 @@ app.use('/api/vareities',variety,auth,responseSender);
 app.use('/api/rejectionreason',rejectionReason,auth,responseSender);
 app.use('/api/analytic',analytic,auth,responseSender);
 app.use('/api/customer',customer,auth,responseSender);
+app.use('/api/customercommodities',customercommodities,auth,responseSender);
 };
