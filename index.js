@@ -6,7 +6,24 @@ require('./startup/db');
 
 
 const express = require('express');
+var cors = require('cors')
 //const config = require('config');
+const corsOpts = {
+    origin: '*',
+  
+    // methods: [
+    //   'GET',
+    //   'POST',
+    // ],
+  
+    // allowedHeaders: [
+    //   'Content-Type',
+    // ],
+  };
+  
+  
+//
+
 
 //If enviornment variable not found
 if(!process.env.JWTSECKEY){
@@ -16,12 +33,16 @@ if(!process.env.JWTSECKEY){
 
 const app = express();
 app.use(express.json());
+app.use(cors(corsOpts));
 
 //All the Router are here
 require('./startup/logging')();
 require('./startup/routes')(app);
 require('./startup/prod')(app);
-
+const http = require('http');
+var axios = require("axios");
+var FormData = require('form-data');
+const { Console } = require('console');
 
 //Route Not Found
 app.use((req,res) =>{
@@ -36,7 +57,7 @@ app.use(function (err, req, res, next) {
     res.locals.error =  err;
   
     // render the error page
-    res.status(err.status || 500);
+    res.status(err.status || 5000);
     res.json({ error: err });
   });
 

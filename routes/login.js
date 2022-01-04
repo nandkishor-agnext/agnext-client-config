@@ -14,6 +14,7 @@ route.post('/', async(req,res,next) =>{
 
     try{
         const user = await User.findOne({email:req.body.email});
+        console.log({'user':user});
         if(!user) return next(createError(400,'Email or Password is incorrect.'));        
         const isValid = await bcrypt.compare(req.body.password,user.password);
         if(!isValid){
