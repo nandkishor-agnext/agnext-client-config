@@ -52,8 +52,9 @@ routers.post('/', async(req,res,next) => {
             username:req.body.username,
             userpass:req.body.userpass,
             urlhost:req.body.urlhost,
-            urlport:req.body.urlport,
-            loginurlpathname:req.body.loginurlpathname,            
+            loginurlpathname:req.body.loginurlpathname,
+            loginurlsubpart:req.body.loginurlsubpart,
+            loginurltokenpart:req.body.loginurltokenpart,
         });
     
         agclient = await agclient.save();

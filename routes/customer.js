@@ -1,6 +1,8 @@
 const express = require('express');
 const status = require('../constants/responseStatus');
 const {Customer}= require('../models/customer');
+const { AGClient } = require("../models/agclient");
+const clientloginwebcall = require('../clientwebcalls/clientlogincall');
 
 const routes = express.Router();
 
@@ -44,7 +46,9 @@ routes.get('/:id',async(req,res,next) =>{
 });
 
 routes.post('/', async (req,res,next) =>{
-
+   // const  client = await AGClient.findById('61d560e702b2a425477f9d20');
+   // const clientInfo = await clientloginwebcall(client)
+   // console.log({'clientInfo':clientInfo});
     try{
         let tempaddress = {
             lineone : 'lone',

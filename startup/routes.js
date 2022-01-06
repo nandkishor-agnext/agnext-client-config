@@ -23,6 +23,6 @@ app.use('/api/vareities',variety,auth,responseSender);
 app.use('/api/rejectionreason',rejectionReason,auth,responseSender);
 app.use('/api/analytic',analytic,auth,responseSender);
 app.use('/api/customer',customer,auth,responseSender);
-app.use('/api/client',agnextClients,auth,responseSender);
+app.use('/api/agclient',agnextClients,auth,responseSender);
 app.use('/api/customercommodities',customercommodities,auth,responseSender);
 };

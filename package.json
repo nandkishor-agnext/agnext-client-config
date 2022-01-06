@@ -6,7 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
-    "seed:import": "node startup/seeder.js --import"
+    "seed:importuser": "node startup/seeder.js --importuser",
+    "seed:importcountry": "node startup/seeder.js --importcountry",
+    "seed:importstate": "node startup/seeder.js --importstate",
+    "seed:importcity": "node startup/seeder.js --importcity"
   },
   "engines": {
     "node": "14.15.0"

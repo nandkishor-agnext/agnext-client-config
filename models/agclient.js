@@ -5,8 +5,10 @@ const agclientschema = new mongoose.Schema({
         username:{type:String,required:true},
         userpass:{type:String,required:true},
         urlhost:{type:String,required:true,maxlength:300}, 
-        urlport:{type:String,maxlength:20},   
-        loginurlpathname:{type:String,required:true,maxlength:1500},             
+       // urlport:{type:String,maxlength:20},   
+        loginurlpathname:{type:String,required:true,maxlength:1000}, 
+        loginurlsubpart:{type:String,required:true,maxlength:1000}, 
+        loginurltokenpart:{type:String,required:true,maxlength:1000},            
         clienttoken:{type:String},
         clienttokendate:{ type: Date},
         isActive:{type:Boolean}
