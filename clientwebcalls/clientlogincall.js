@@ -8,15 +8,15 @@ module.exports = async function GetClientAccessToken(loginInfo){
     
   //return new Promise((resolve,reject) => {
   
-      //Stemp One
+      //Step One
     const tempjCookie = await getCookie(loginInfo);
-    
+    //console.log({'tempjCookie':tempjCookie});
       //Step Tow
     const postLoginjCookie = await doLogin(loginInfo,tempjCookie);
-    
+    //console.log({'postLoginjCookie':postLoginjCookie});
     // this code is mostly replicated can be replaced with getCookie function
     const code = await getTokenCodebyCookie(loginInfo,postLoginjCookie);
-    
+    //console.log({'code':code});
       //Last step to obtain User Information
     return  await getaccessTokenbyCode(loginInfo,code,postLoginjCookie);
 
@@ -34,17 +34,26 @@ async function getCookie(loginInfo){
 
  
 //let baseurl = 'http://teadev.qualixag.club/tea/oauth/authorize?client_id=clientId&response_type=code';
-var optionsget = {
+let optionsget = {
   host : loginInfo.urlhost, 
   path : loginInfo.loginurlpathname,//'/tea/oauth/authorize?client_id=clientId&response_type=code', // the rest of the url with parameters if needed
   method : 'GET'
 };
 
+
+if(loginInfo.urlport){
+  optionsget.port=loginInfo.urlport;
+}
+
+
+
 //do the GET request
 var reqGet = http.request(optionsget, function(res) { 
     let statuscode = res.statusCode;
+    // console.log({'statuscode':statuscode});
+    // console.log({'resgetCookiegetCookiegetCookiegetCookie':res.headers})
     if(statuscode != 302){
-        throw { name: 'Error', message: 'Not able to obtain access cookies('+statuscode+')' };
+        throw { name: 'Error', message: 'Step One Not able to obtain access cookies('+statuscode+')' };
     }
     
   let cookies = res.headers['set-cookie']; 
@@ -57,7 +66,7 @@ var reqGet = http.request(optionsget, function(res) {
     }
   }
   else{
-    throw { name: 'Error', message: 'Not able to obtain access cookies(set-cookie header not found)' };
+    throw { name: 'Error', message: 'Step One Not able to obtain access cookies(set-cookie header not found)' };
   }
 
   // res.on('data', function(d) {  
@@ -69,7 +78,7 @@ var reqGet = http.request(optionsget, function(res) {
 reqGet.end();
 reqGet.on('error', function(e) {
  // console.error('Error while getting cookie information'+e);
- throw { name: 'Error', message: 'Error while getting cookie information('+e+')' };
+ throw { name: 'Error', message: 'Step One Error while getting cookie information('+e+')' };
 });
 
 });
@@ -101,8 +110,14 @@ var optionspost = {
   headers : postheaders
 };
 
+if(loginInfo.urlport){
+  optionspost.port=loginInfo.urlport;
+}
+
 // do the POST call
 var reqPost = http.request(optionspost, function(res) { 
+ // console.log({'step two headers':res.headers});
+ // console.log({'step two response':res});
   let cookies = res.headers['set-cookie']; 
   if(cookies && cookies.length > 0){
     let val = cookies[0].split(';');   
@@ -114,7 +129,7 @@ var reqPost = http.request(optionspost, function(res) {
     }
   }
   else{
-    throw { name: 'Error', message: 'Not able to obtain access cookies(set-cookie header not found)' };
+    throw { name: 'Error', message: 'Step Two Not able to obtain access cookies(set-cookie header not found)' };
   }
 
 //   res.on('data', function(d) {
@@ -151,6 +166,11 @@ var optionsget = {
     'Cookie' : cookie
   }
 };
+
+
+if(loginInfo.urlport){
+  optionsget.port=loginInfo.urlport;
+}
 
 // do the GET request
 var reqGet = http.request(optionsget, function(res) {  
@@ -192,6 +212,10 @@ async function getaccessTokenbyCode(loginInfo,code,cookie){
                 'Cookie' : cookie
                 }
             };  
+
+            if(loginInfo.urlport){
+              optionsget.port=loginInfo.urlport;
+            }
             
             // do the GET request
             var reqGet = http.request(optionsget, function(res) {  

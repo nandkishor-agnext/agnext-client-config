@@ -1,135 +1,190 @@
-const express = require('express');
-const status = require('../constants/responseStatus');
-const {Customer}= require('../models/customer');
-const { AGClient } = require("../models/agclient");
-const clientloginwebcall = require('../clientwebcalls/clientlogincall');
+const express = require("express");
+const status = require("../constants/responseStatus");
+const { Customer } = require("../models/customer");
+const agclienthelper = require("../agclients/agclienthelper");
+const agclientCreate = require("../clientwebcalls/clientcreatecall");
 
 const routes = express.Router();
 
-routes.get('/',async(req,res,next)=>{
-
-    try{
-        const customers = await Customer.find();
-        req.responseObject = customers;
-        req.responseObjectCount = customers.length;
-        req.responseStatus = status.SUCCESS;
-        req.responseStatusCode = 200;   
-        next();
-    }
-    catch(err){
-        res.status(500).json({
-            status: status.ERROR,            
-            message:err.message
-          });
-    }
-
-});
-
-routes.get('/:id',async(req,res,next) =>{
-
-    try{
-        const customer = await Customer.findById(req.params.id);
-        if(!customer) return res.status(401).send('Customer Not Found');
-        req.responseObject = customer;        
-        req.responseStatus = status.SUCCESS;
-        req.responseStatusCode = 200;
-        next();
-        
-    }
-    catch(err){
-        res.status(500).json({
-            status: status.ERROR,            
-            message:err.message
-          });
-    }
-
-});
-
-routes.post('/', async (req,res,next) =>{
-   // const  client = await AGClient.findById('61d560e702b2a425477f9d20');
-   // const clientInfo = await clientloginwebcall(client)
-   // console.log({'clientInfo':clientInfo});
-    try{
-        let tempaddress = {
-            lineone : 'lone',
-            linetwo : 'ltwo',
-            country : 'india',
-            state   : 'punjab',
-            district : "SAS Nagar",
-            city    : 'mohali',        
-            pincode : '160101'
-        };
-        console.log({'tempaddress':tempaddress});
-        const customer = new Customer({
-            name:req.body.name,
-            email:req.body.email,   
-            mobile:req.body.mobile,
-            gst:req.body.gst,
-            pan:req.body.pan,
-            cin:req.body.cin,
-            address: tempaddress,
-            isActive:true
-        });
-
-       const newCustomer = await customer.save();
-       req.responseObject = newCustomer;        
-        req.responseStatus = status.SUCCESS;
-        req.responseStatusCode = 201;
-        next();
-    }
-    catch(err){
-        res.status(500).json({
-            status: status.ERROR,            
-            message:err.message
-          });
-    }
-    
-});
-
-routes.put('/:id', async(req,res,next) =>{
-    try{
-    let customer = await Customer.findById(req.params.id);
-    if(!customer) return res.status(401).send('Customer Not Found');
-
-    customer.name=req.body.name;
-    customer.email=req.body.email; 
-    customer.mobile=req.body.mobile;
-    customer.gst=req.body.gst;
-    customer.pan=req.body.pan;
-    customer.cin=req.body.cin;
-   // customer.address= tempaddress;
-
-    customer = await customer.save();
-    req.responseObject = customer;        
+routes.get("/", async (req, res, next) => {
+  try {
+    const customers = await Customer.find();
+    req.responseObject = customers;
+    req.responseObjectCount = customers.length;
     req.responseStatus = status.SUCCESS;
     req.responseStatusCode = 200;
     next();
-    }
-    catch(err){
-        
-        res.status(500).json({
-            status: status.ERROR,            
-            message:err.message
-          });
-    }
+  } catch (err) {
+    res.status(500).json({
+      status: status.ERROR,
+      message: err.message,
+    });
+  }
 });
 
-routes.delete('/:id',async(req,res,next) =>{
-    try{
-        const customer = await Customer.findByIdAndDelete(req.params.id);
-        if(!customer) return res.status(401).send('Customer Not Found');
-        req.responseStatus = status.SUCCESS;
-        req.responseStatusCode = 204;
-        next();
-    }
-    catch(err){
-        res.status(500).json({
-            status: status.ERROR,            
-            message:err.message
-          });
-    }
+routes.get("/:id", async (req, res, next) => {
+  try {
+    const customer = await Customer.findById(req.params.id);
+    if (!customer) return res.status(401).send("Customer Not Found");
+    req.responseObject = customer;
+    req.responseStatus = status.SUCCESS;
+    req.responseStatusCode = 200;
+    next();
+  } catch (err) {
+    res.status(500).json({
+      status: status.ERROR,
+      message: err.message,
+    });
+  }
 });
 
+routes.post("/", async (req, res, next) => {
+  let customertopost = getTempCustomer();
+   await agclientCreate
+    .createClient("61dd449b8f6f394a31ec6ed4", customertopost)
+    .then((res) => { //Getting success response here
+      console.log({ successsucessOne: res.data.customer_id });
+      console.log({ successsucessOne: res.data.customer_uuid});
+      //console.log({ successsucessOne: res.customer_id });
+      
+    })
+    .catch((errorres) => {
+      console.log({ errorreserrorreserrorres: errorres });
+      if (errorres.statuscode && errorres.statuscode == 401) {
+        //Token Expire call it max five time
+        agclientCreate
+          .createClient("61dd449b8f6f394a31ec6ed4", customertopost, true)
+          .then((dupres) => {
+            console.log({ successsucesstow: res });
+          })
+          .catch((duperr) => {
+            res.status(500).json({
+              status: status.ERROR,
+              message: duperr.error,
+            });
+          });
+      } else {
+        res.status(500).json({
+          status: status.ERROR,
+          message: errorres.error,
+        });
+      }
+    });
 
+  // try{
 
-module.exports=routes;
+  //     //console.log({'tempaddress':tempaddress});
+  //     const customer = new Customer({
+  //         name:req.body.name,
+  //         email:req.body.email,
+  //         password:req.body.password,
+  //         contact_number:req.body.contact_number,
+  //         gst:req.body.gst,
+  //         pan:req.body.pan,
+  //         commodity_category_ids:req.body.commodity_category_ids,
+  //         address: tempaddress,
+  //         user:{},
+  //         isActive:true
+  //     });
+
+  //    const newCustomer = await customer.save();
+  //    req.responseObject = newCustomer;
+  //     req.responseStatus = status.SUCCESS;
+  //     req.responseStatusCode = 201;
+  //     next();
+  // }
+  // catch(err){
+  //     res.status(500).json({
+  //         status: status.ERROR,
+  //         message:err.message
+  //       });
+  // }
+});
+
+routes.put("/:id", async (req, res, next) => {
+  try {
+    let customer = await Customer.findById(req.params.id);
+    if (!customer) return res.status(401).send("Customer Not Found");
+
+    customer.name = req.body.name;
+    customer.email = req.body.email;
+    customer.mobile = req.body.mobile;
+    customer.gst = req.body.gst;
+    customer.pan = req.body.pan;
+    customer.cin = req.body.cin;
+    // customer.address= tempaddress;
+
+    customer = await customer.save();
+    req.responseObject = customer;
+    req.responseStatus = status.SUCCESS;
+    req.responseStatusCode = 200;
+    next();
+  } catch (err) {
+    res.status(500).json({
+      status: status.ERROR,
+      message: err.message,
+    });
+  }
+});
+
+routes.delete("/:id", async (req, res, next) => {
+  try {
+    const customer = await Customer.findByIdAndDelete(req.params.id);
+    if (!customer) return res.status(401).send("Customer Not Found");
+    req.responseStatus = status.SUCCESS;
+    req.responseStatusCode = 204;
+    next();
+  } catch (err) {
+    res.status(500).json({
+      status: status.ERROR,
+      message: err.message,
+    });
+  }
+});
+
+function getTempCustomer() {
+  let customertopost = {
+    name: "nk dev",
+    email: "nkdev6@agnext.in",
+    contact_number: "7898789878",
+    gst: "26HABCU9623R1ZX",
+    pan: "GMXPN6832B",
+    partner_id: "",
+    is_partner: false,
+    commodity_category_ids: [3, 6],
+    address: [
+      {
+        address1: "MY TEST ADDRESS",
+        country: "101",
+        state: "2",
+        city: "5",
+        pincode: "160606",
+      },
+    ],
+    bank_details: [
+      { bank_name: "", branch: "", bank_account_number: "", ifsc: "" },
+    ],
+    user: {
+      first_name: "nk dev",
+      last_name: "test",
+      email: "nkdevuser6@agnext.in",
+      contact_number: "6787876787",
+      roles: ["admin"],
+      user_hierarchy: "admin",
+      is_2fa_required: 1,
+      address: [
+        {
+          address1: "MY TEST ADDRESS",
+          country: "101",
+          state: "17",
+          city: "1524",
+          pincode: "160606",
+        },
+      ],
+    },
+  };
+
+  return customertopost;
+}
+
+module.exports = routes;

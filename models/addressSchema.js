@@ -1,35 +1,28 @@
 const mongose = require('mongoose');
 
 const addressSchema= new mongose.Schema({
-    lineone:{
+    address1:{
         type:String,
         minlength:2,
-        maxlength:250
-    },
-    linetwo:{
-        type:String,
-        minlength:2,
-        maxlength:250
-    },
+        maxlength:2000,
+        required:true
+    },    
     country:{
-        type:String,        
-        maxlength:250
+        type:Number,        
+        required:true
     },
     state:{
-        type:String,        
-        maxlength:250
-    },
-    district:{
-        type:String,        
-        maxlength:250
-    },
+        type:Number,        
+        required:true
+    },    
     city:{
-        type:String,        
-        maxlength:250
+        type:Number,        
+        required:true
     },
     pincode:{
         type:String,        
-        maxlength:250
+        maxlength:6,
+        required:true
     },
 
 });
