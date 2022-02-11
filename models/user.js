@@ -32,7 +32,18 @@ const userSchema = new mongoose.Schema({
 })
 
 userSchema.methods.getAuthToken = function(){
-    return jwt.sign({_id:this._id,name:this.name},process.env.JWTSECKEY);
+    return jwt.sign({_id:this._id, name:this.name, "iat": 1516234022}, process.env.JWTSECKEY, {expiresIn: '1d'});
+}
+
+//delete token
+
+userSchema.statics.deleteToken=function(token,cb) {
+    var user=this;
+
+    user.updateOne({$unset : {token : 1}},function(err,user){
+        if(err) return cb(err);
+        cb(null,user);
+    })
 }
 
 const User = mongoose.model('User',userSchema);
