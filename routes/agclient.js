@@ -10,14 +10,15 @@ routers.get('/', async(req,res,next) =>{
        // const c = await AGClient.find({name:/^nk/}) filter start with
        // const c = await AGClient.find({name:/nk$/i}) filter end with and case senstive
        // const c = await AGClient.find({name:/.*nk$.*/i}) contains
-        const pagenumber = 1;
-        const pagesize =2;
-        let query = {isActive:true};
-        const clients = await AGClient.find(query)
-        .sort({'name':1})
-        .skip((pagenumber - 1) * pagesize)
-        .limit(pagesize)        
-        .select({ _id: 1, name: 1 ,count : count()});
+        // const pagenumber = 1;
+        // const pagesize =2;
+        // let query = {isActive:true};
+        // const clients = await AGClient.find(query)
+        // .sort({'name':1})
+        // .skip((pagenumber - 1) * pagesize)
+        // .limit(pagesize)        
+        // .select({ _id: 1, name: 1 ,count : count()});
+        const clients = await AGClient.find().select({_id:1,name:1});
         req.responseObject = clients;
         req.responseObjectCount = clients.length;
         req.responseStatus = status.SUCCESS;
