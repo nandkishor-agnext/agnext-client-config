@@ -1,6 +1,6 @@
 const express = require("express");
 const status = require("../constants/responseStatus");
-const { Customer } = require("../models/customer");
+const { QualixCustomer } = require("../models/qualixCustomer");
 const agclienthelper = require("../agclients/agclienthelper");
 const agclientCreate = require("../clientwebcalls/clientcreatecall");
 
@@ -8,7 +8,7 @@ const routes = express.Router();
 
 routes.get("/", async (req, res, next) => {
   try {
-    const customers = await Customer.find();
+    const customers = await QualixCustomer.find();
     req.responseObject = customers;
     req.responseObjectCount = customers.length;
     req.responseStatus = status.SUCCESS;
@@ -24,7 +24,7 @@ routes.get("/", async (req, res, next) => {
 
 routes.get("/:id", async (req, res, next) => {
   try {
-    const customer = await Customer.findById(req.params.id);
+    const customer = await QualixCustomer.findById(req.params.id);
     if (!customer) return res.status(401).send("Customer Not Found");
     req.responseObject = customer;
     req.responseStatus = status.SUCCESS;
@@ -39,71 +39,84 @@ routes.get("/:id", async (req, res, next) => {
 });
 
 routes.post("/", async (req, res, next) => {
-  let customertopost = getTempCustomer();
-   await agclientCreate
-    .createClient("61dd449b8f6f394a31ec6ed4", customertopost)
-    .then((res) => { //Getting success response here
-      console.log({ successsucessOne: res.data.customer_id });
-      console.log({ successsucessOne: res.data.customer_uuid});
-      //console.log({ successsucessOne: res.customer_id });
+  
+  try{
       
-    })
-    .catch((errorres) => {
-      console.log({ errorreserrorreserrorres: errorres });
-      if (errorres.statuscode && errorres.statuscode == 401) {
-        //Token Expire call it max five time
-        agclientCreate
-          .createClient("61dd449b8f6f394a31ec6ed4", customertopost, true)
-          .then((dupres) => {
-            console.log({ successsucesstow: res });
-          })
-          .catch((duperr) => {
-            res.status(500).json({
-              status: status.ERROR,
-              message: duperr.error,
-            });
-          });
-      } else {
-        res.status(500).json({
+      const customer = new QualixCustomer({
+          name:req.body.name,
+          email:req.body.email,
+        //  password:req.body.password,
+          contact_number:req.body.contact_number,
+          gst:req.body.gst,
+          pan:req.body.pan,
+          commodity_category_ids:req.body.commodity_category_ids,
+          address: {address1:req.body.address1,country:req.body.country,state:req.body.state,city:req.body.city,pincode:req.body.pincode},
+          user:{
+            first_name:req.body.user.first_name,
+            last_name:req.body.user.last_name,
+            email:req.body.user.email,
+            contact_number:req.body.user.contact_number,
+            roles:req.body.user.roles,
+            user_hierarchy:req.body.user.user_hierarchy,
+            is_2fa_required:req.body.user.is_2fa_required,
+            address:{
+              address1:req.body.user.address.address1,
+              country:req.body.user.address.country,
+              state:req.user.address.body.state,
+              city:req.body.user.address.city,
+              pincode:req.user.address.pincode},
+          },
+          isactive:true,
+          isActive:true
+      });
+
+     const newCustomer = await customer.save();
+     req.responseObject = newCustomer;
+      req.responseStatus = status.SUCCESS;
+      req.responseStatusCode = 201;
+      next();
+  }
+  catch(err){
+      res.status(500).json({
           status: status.ERROR,
-          message: errorres.error,
+          message:err.message
         });
-      }
-    });
-
-  // try{
-
-  //     //console.log({'tempaddress':tempaddress});
-  //     const customer = new Customer({
-  //         name:req.body.name,
-  //         email:req.body.email,
-  //         password:req.body.password,
-  //         contact_number:req.body.contact_number,
-  //         gst:req.body.gst,
-  //         pan:req.body.pan,
-  //         commodity_category_ids:req.body.commodity_category_ids,
-  //         address: tempaddress,
-  //         user:{},
-  //         isActive:true
-  //     });
-
-  //    const newCustomer = await customer.save();
-  //    req.responseObject = newCustomer;
-  //     req.responseStatus = status.SUCCESS;
-  //     req.responseStatusCode = 201;
-  //     next();
-  // }
-  // catch(err){
-  //     res.status(500).json({
+  }
+  // let customertopost = getTempCustomer();
+  //  await agclientCreate
+  //   .createClient("61dd449b8f6f394a31ec6ed4", customertopost)
+  //   .then((res) => { //Getting success response here store it to database
+  //     console.log({ successsucessOne: res.data.customer_id });
+  //     console.log({ successsucessOne: res.data.customer_uuid});
+  //   })
+  //   .catch((errorres) => {
+  //     //console.log({ errorreserrorreserrorres: errorres });
+  //     if (errorres.statuscode && errorres.statuscode == 401) {
+  //       //Token Expire call it max five time
+  //       agclientCreate
+  //         .createClient("61dd449b8f6f394a31ec6ed4", customertopost, true)
+  //         .then((dupres) => {
+  //           console.log({ successsucesstow: res });
+  //         })
+  //         .catch((duperr) => {
+  //           res.status(500).json({
+  //             status: status.ERROR,
+  //             message: duperr.error,
+  //           });
+  //         });
+  //     } else {
+  //       res.status(500).json({
   //         status: status.ERROR,
-  //         message:err.message
+  //         message: errorres.error,
   //       });
-  // }
+  //     }
+  //   });
+
 });
 
 routes.put("/:id", async (req, res, next) => {
   try {
-    let customer = await Customer.findById(req.params.id);
+    let customer = await QualixCustomer.findById(req.params.id);
     if (!customer) return res.status(401).send("Customer Not Found");
 
     customer.name = req.body.name;
@@ -129,7 +142,7 @@ routes.put("/:id", async (req, res, next) => {
 
 routes.delete("/:id", async (req, res, next) => {
   try {
-    const customer = await Customer.findByIdAndDelete(req.params.id);
+    const customer = await QualixCustomer.findByIdAndDelete(req.params.id);
     if (!customer) return res.status(401).send("Customer Not Found");
     req.responseStatus = status.SUCCESS;
     req.responseStatusCode = 204;

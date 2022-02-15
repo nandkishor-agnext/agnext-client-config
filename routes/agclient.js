@@ -7,10 +7,19 @@ const routers = express.Router();
 
 routers.get('/', async(req,res,next) =>{
     try{
-        const clients = await AGClient.find();
-
+       // const c = await AGClient.find({name:/^nk/}) filter start with
+       // const c = await AGClient.find({name:/nk$/i}) filter end with and case senstive
+       // const c = await AGClient.find({name:/.*nk$.*/i}) contains
+        const pagenumber = 1;
+        const pagesize =2;
+        let query = {isActive:true};
+        const clients = await AGClient.find(query)
+        .sort({'name':1})
+        .skip((pagenumber - 1) * pagesize)
+        .limit(pagesize)        
+        .select({ _id: 1, name: 1 ,count : count()});
         req.responseObject = clients;
-        req.responseObjectCount = analytics.length;
+        req.responseObjectCount = clients.length;
         req.responseStatus = status.SUCCESS;
         req.responseStatusCode = 200;    
 
@@ -55,6 +64,7 @@ routers.post('/', async(req,res,next) => {
             loginurlpathname:req.body.loginurlpathname,
             loginurlsubpart:req.body.loginurlsubpart,
             loginurltokenpart:req.body.loginurltokenpart,
+            isActive:true
         });
     
         agclient = await agclient.save();

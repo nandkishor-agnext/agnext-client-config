@@ -1,6 +1,7 @@
 const mongose = require('mongoose');
 const {addressSchema} = require('./addressSchema');
-const customerSchema = new mongose.Schema({
+const {qualixUserSchema}= require('./qualixUserSchema')
+const qualixCustomerSchema = new mongose.Schema({
 
     name:{
         type:String,
@@ -13,13 +14,7 @@ const customerSchema = new mongose.Schema({
         minlength:5,
         maxlength:255,
         required:true
-    },
-    password:{
-        type:String,
-        minlength:5,
-        maxlength:255,
-        required:true
-    },
+    },    
     contact_number:{
         type:String,
         minlength:10,
@@ -40,8 +35,8 @@ const customerSchema = new mongose.Schema({
     },
     commodity_category_ids:[Number],
     address:[addressSchema],
-    user:{}
+    user:qualixUserSchema
 })
 
-const Customer = mongose.model('Customer',customerSchema);
-module.exports.Customer = Customer;
+const QualixCustomer = mongose.model('QualixCustomer',qualixCustomerSchema);
+module.exports.QualixCustomer = QualixCustomer;

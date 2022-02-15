@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "start": "node index.js",
     "seed:importuser": "node startup/seeder.js --importuser",
     "seed:importcountry": "node startup/seeder.js --importcountry",
@@ -34,5 +34,8 @@
     "mongoose": "^6.0.11",
     "winston": "^3.3.3",
     "winston-mongodb": "^5.0.7"
+  },
+  "devDependencies": {
+    "jest": "^27.4.7"
   }
 }
