@@ -1,4 +1,5 @@
 const authlogin = require('../routes/login');
+const logout = require('../routes/logout');
 const users = require('../routes/users');
 const customer = require('../routes/customer');
 const customercommodities = require('../routes/customercommodities');
@@ -12,10 +13,10 @@ const responseSender = require('../middleware/responsender');
 const auth = require('../middleware/auth');
 
 
-
 module.exports =function(app){
 
 app.use('/auth/login',authlogin);
+app.use('/auth/logout',logout,auth);
 app.use('/api/users',users,auth);
 app.use('/api/commoditycategory',commoditycategory,auth,responseSender);
 app.use('/api/commodities',commodity,auth,responseSender);
