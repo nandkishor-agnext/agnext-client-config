@@ -9,7 +9,10 @@ const variety = require("../routes/variety");
 const rejectionReason=require('../routes/rejection-reason');
 const analytic = require("../routes/analytic")
 const agnextClients = require("../routes/agclient");
+const cities = require("../routes/city");
+const states = require('../routes/states');
 const responseSender = require('../middleware/responsender');
+
 const auth = require('../middleware/auth');
 
 
@@ -25,5 +28,7 @@ app.use('/api/rejectionreason',rejectionReason,auth,responseSender);
 app.use('/api/analytic',analytic,auth,responseSender);
 app.use('/api/customer',customer,auth,responseSender);
 app.use('/api/agclient',agnextClients,auth,responseSender);
+app.use('/api/city',cities,auth,responseSender);
+app.use('/api/state',states,auth,responseSender);
 app.use('/api/customercommodities',customercommodities,auth,responseSender);
 };
