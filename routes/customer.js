@@ -62,9 +62,9 @@ routes.post("/", async (req, res, next) => {
             address:{
               address1:req.body.user.address.address1,
               country:req.body.user.address.country,
-              state:req.user.address.body.state,
+              state:req.body.user.address.state,
               city:req.body.user.address.city,
-              pincode:req.user.address.pincode},
+              pincode:req.body.user.address.pincode},
           },
           isactive:true,
           isActive:true
