@@ -41,7 +41,12 @@ routes.get("/:id", async (req, res, next) => {
 routes.post("/", async (req, res, next) => {
   
   try{
-      
+    
+    const existingCustomer = await QualixCustomer.findOne({ $or: [ { email: req.body.email }, { contact_number: req.body.contact_number } ] });
+    //console.log({'existingCustomer':existingCustomer});
+    if(existingCustomer) return res.status(400).send('Customer Email or Contact Number already exists.');   
+    
+
       const customer = new QualixCustomer({
           name:req.body.name,
           email:req.body.email,
@@ -71,7 +76,7 @@ routes.post("/", async (req, res, next) => {
       });
 
      const newCustomer = await customer.save();
-     req.responseObject = newCustomer;
+     req.responseObject = {data:newCustomer,seasons:defaultSeasons(),dtrVariables:defaultDTRs()};
       req.responseStatus = status.SUCCESS;
       req.responseStatusCode = 201;
       next();
@@ -208,6 +213,148 @@ function getTempCustomer() {
       city:parseInt(addressbody.city),
       pincode:parseInt(addressbody.pincode)
     }
+ }
+
+ function defaultSeasons(){
+  return [
+    {
+      "seasonName": "Rabi2020",
+      "seasonStartDate": "2020-03-01",
+      "seasonEndDate": "2020-08-31"
+    },
+    {
+      "seasonName": "Kharif2020",
+      "seasonStartDate": "2020-09-01",
+      "seasonEndDate": "2021-02-28"
+    },
+    {
+      "seasonName": "Rabi2021",
+      "seasonStartDate": "2021-03-01",
+      "seasonEndDate": "2021-08-31"
+    },
+    {
+      "seasonName": "Kharif2021",
+      "seasonStartDate": "2021-09-01",
+      "seasonEndDate": "2022-02-28"
+    },
+    {
+      "seasonName": "Rabi2022",
+      "seasonStartDate": "2022-03-01",
+      "seasonEndDate": "2022-08-31"
+    },
+    {
+      "seasonName": "Kharif2022",
+      "seasonStartDate": "2022-09-01",
+      "seasonEndDate": "2023-02-28"
+    },
+    {
+      "seasonName": "Rabi2023",
+      "seasonStartDate": "2023-03-01",
+      "seasonEndDate": "2023-08-31"
+    },
+    {
+      "seasonName": "Kharif2023",
+      "seasonStartDate": "2023-09-01",
+      "seasonEndDate": "2024-02-29"
+    },
+    {
+      "seasonName": "Rabi2024",
+      "seasonStartDate": "2024-03-01",
+      "seasonEndDate": "2024-08-31"
+    },
+    {
+      "seasonName": "Kharif2024",
+      "seasonStartDate": "2024-09-01",
+      "seasonEndDate": "2025-02-28"
+    },
+    {
+      "seasonName": "Rabi2025",
+      "seasonStartDate": "2025-03-01",
+      "seasonEndDate": "2025-08-31"
+    },
+    {
+      "seasonName": "Kharif2025",
+      "seasonStartDate": "2025-09-01",
+      "seasonEndDate": "2026-02-28"
+    }
+  ]
+ }
+
+ function defaultDTRs(){
+ return [
+    {
+      "field_name": "accepted_bags",
+      "default_value": "0",
+      "display_on_ui": false,
+      "display_on_client": false,
+      "units": "",
+      "view_type": "editText",
+      "data_type": "string",
+      "display_name": "Accepted Bags",
+      "index": 100,
+      "mandatory": false
+    },
+    {
+      "field_name": "farmer_code",
+      "default_value": null,
+      "display_on_ui": false,
+      "display_on_client": false,
+      "units": "",
+      "view_type": "editText",
+      "data_type": "string",
+      "display_name": "Farmer Code",
+      "index": 100,
+      "mandatory": false
+    },
+    {
+      "field_name": "assaying_type",
+      "default_value": "INDIVIDUAL",
+      "display_on_ui": true,
+      "display_on_client": false,
+      "units": "",
+      "view_type": "editText",
+      "data_type": "string",
+      "display_name": "Scan Type",
+      "index": 100,
+      "mandatory": false
+    },
+    {
+      "field_name": "stack_number",
+      "default_value": "0",
+      "display_on_ui": false,
+      "display_on_client": false,
+      "units": "",
+      "view_type": "editText",
+      "data_type": "string",
+      "display_name": "Stack Number",
+      "index": 100,
+      "mandatory": false
+    },
+    {
+      "field_name": "gate_pass",
+      "default_value": "0",
+      "display_on_ui": false,
+      "display_on_client": false,
+      "units": "",
+      "view_type": "editText",
+      "data_type": "string",
+      "display_name": "Gate Pass No.",
+      "index": 100,
+      "mandatory": false
+    },
+    {
+      "field_name": "weighbridge_name",
+      "default_value": null,
+      "display_on_ui": false,
+      "display_on_client": false,
+      "units": "",
+      "view_type": "editText",
+      "data_type": "string",
+      "display_name": "Weighbridge Name",
+      "index": 100,
+      "mandatory": false
+    }
+  ]
  }
 
 module.exports = routes;
