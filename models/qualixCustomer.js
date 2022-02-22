@@ -33,7 +33,7 @@ const qualixCustomerSchema = new mongose.Schema({
         maxlength:10,
         required:true
     },
-    commodity_category_ids:[Number],
+    commodity_category_ids:[String],
     address:[addressSchema],
     user:qualixUserSchema
 })

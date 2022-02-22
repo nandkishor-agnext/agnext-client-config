@@ -50,7 +50,7 @@ routes.post("/", async (req, res, next) => {
           gst:req.body.gst,
           pan:req.body.pan,
           commodity_category_ids:req.body.commodity_category_ids,
-          address: {address1:req.body.address1,country:req.body.country,state:req.body.state,city:req.body.city,pincode:req.body.pincode},
+          address: getAddress(req.body.address), //{address1:req.body.address1,country:req.body.country,state:req.body.state,city:req.body.city,pincode:req.body.pincode},
           user:{
             first_name:req.body.user.first_name,
             last_name:req.body.user.last_name,
@@ -59,12 +59,12 @@ routes.post("/", async (req, res, next) => {
             roles:req.body.user.roles,
             user_hierarchy:req.body.user.user_hierarchy,
             is_2fa_required:req.body.user.is_2fa_required,
-            address:{
-              address1:req.body.user.address.address1,
-              country:req.body.user.address.country,
-              state:req.body.user.address.state,
-              city:req.body.user.address.city,
-              pincode:req.body.user.address.pincode},
+            address:getAddress(req.body.user.address),//{
+            //   address1:req.body.user.address.address1,
+            //   country:req.body.user.address.country,
+            //   state:req.body.user.address.state,
+            //   city:req.body.user.address.city,
+            //   pincode:req.body.user.address.pincode},
           },
           isactive:true,
           isActive:true
@@ -199,5 +199,15 @@ function getTempCustomer() {
 
   return customertopost;
 }
+
+ function getAddress(addressbody){
+    return {
+      address1:addressbody.address1,
+      country: parseInt(addressbody.country),
+      state:parseInt(addressbody.state),
+      city:parseInt(addressbody.city),
+      pincode:parseInt(addressbody.pincode)
+    }
+ }
 
 module.exports = routes;
