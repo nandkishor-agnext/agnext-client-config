@@ -50,7 +50,8 @@ routes.post('/', async (req,res,next) =>{
         const customer = new CustomerCommodities({
             customerId:req.body.customerId,
             customerName:req.body.customerName,
-            commodities:req.body.commodities,            
+
+            commodities:req.body.commodity_mapped,            
             isActive:true
         });        
 
