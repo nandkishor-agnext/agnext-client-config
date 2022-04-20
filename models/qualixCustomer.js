@@ -35,7 +35,8 @@ const qualixCustomerSchema = new mongose.Schema({
     },
     commodity_category_ids:[String],
     address:[addressSchema],
-    user:qualixUserSchema
+    user:qualixUserSchema,
+    agClient_id: String
 })
 
 const QualixCustomer = mongose.model('QualixCustomer',qualixCustomerSchema);

@@ -42,82 +42,79 @@ routes.post("/", async (req, res, next) => {
   
   try{
     
-    const existingCustomer = await QualixCustomer.findOne({ $or: [ { email: req.body.email }, { contact_number: req.body.contact_number } ] });
+    const existingCustomer = false; // await QualixCustomer.findOne({ $or: [ { email: req.body.email }, { contact_number: req.body.contact_number } ] });
     //console.log({'existingCustomer':existingCustomer});
     if(existingCustomer) return res.status(400).send('Customer Email or Contact Number already exists.');   
-    
-
       const customer = new QualixCustomer({
-          name:req.body.name,
-          email:req.body.email,
-        //  password:req.body.password,
-          contact_number:req.body.contact_number,
-          gst:req.body.gst,
-          pan:req.body.pan,
-          commodity_category_ids:req.body.commodity_category_ids,
-          address: getAddress(req.body.address), //{address1:req.body.address1,country:req.body.country,state:req.body.state,city:req.body.city,pincode:req.body.pincode},
-          user:{
-            first_name:req.body.user.first_name,
-            last_name:req.body.user.last_name,
-            email:req.body.user.email,
-            contact_number:req.body.user.contact_number,
-            roles:req.body.user.roles,
-            user_hierarchy:req.body.user.user_hierarchy,
-            is_2fa_required:req.body.user.is_2fa_required,
-            address:getAddress(req.body.user.address),//{
-            //   address1:req.body.user.address.address1,
-            //   country:req.body.user.address.country,
-            //   state:req.body.user.address.state,
-            //   city:req.body.user.address.city,
-            //   pincode:req.body.user.address.pincode},
-          },
-          isactive:true,
-          isActive:true
+        name:req.body.name,
+        email:req.body.email,
+      //  password:req.body.password,
+        contact_number:req.body.contact_number,
+        gst:req.body.gst,
+        pan:req.body.pan,
+        commodity_category_ids:req.body.commodity_category_ids,
+        address: getAddress(req.body.address), //{address1:req.body.address1,country:req.body.country,state:req.body.state,city:req.body.city,pincode:req.body.pincode},
+        user:{
+          first_name:req.body.user.first_name,
+          last_name:req.body.user.last_name,
+          email:req.body.user.email,
+          contact_number:req.body.user.contact_number,
+          roles:req.body.user.roles,
+          user_hierarchy:req.body.user.user_hierarchy,
+          is_2fa_required:req.body.user.is_2fa_required,
+          address:getAddress(req.body.user.address),//{
+          //   address1:req.body.user.address.address1,
+          //   country:req.body.user.address.country,
+          //   state:req.body.user.address.state,
+          //   city:req.body.user.address.city,
+          //   pincode:req.body.user.address.pincode},
+        },
+        agClient_id: req.body.agClient_id,
+        isactive:true,
+        isActive:true
       });
 
-     const newCustomer = await customer.save();
-     req.responseObject = {data:newCustomer,seasons:defaultSeasons(),dtrVariables:defaultDTRs()};
+      const newCustomer = await customer.save();
+      req.responseObject = {data:newCustomer,seasons:defaultSeasons(),dtrVariables:defaultDTRs()};
       req.responseStatus = status.SUCCESS;
       req.responseStatusCode = 201;
       next();
   }
   catch(err){
-      res.status(500).json({
-          status: status.ERROR,
-          message:err.message
-        });
+    res.status(500).json({
+      status: status.ERROR,
+      message:err.message
+    });
   }
-  // let customertopost = getTempCustomer();
-  //  await agclientCreate
-  //   .createClient("61dd449b8f6f394a31ec6ed4", customertopost)
-  //   .then((res) => { //Getting success response here store it to database
-  //     console.log({ successsucessOne: res.data.customer_id });
-  //     console.log({ successsucessOne: res.data.customer_uuid});
-  //   })
-  //   .catch((errorres) => {
-  //     //console.log({ errorreserrorreserrorres: errorres });
-  //     if (errorres.statuscode && errorres.statuscode == 401) {
-  //       //Token Expire call it max five time
-  //       agclientCreate
-  //         .createClient("61dd449b8f6f394a31ec6ed4", customertopost, true)
-  //         .then((dupres) => {
-  //           console.log({ successsucesstow: res });
-  //         })
-  //         .catch((duperr) => {
-  //           res.status(500).json({
-  //             status: status.ERROR,
-  //             message: duperr.error,
-  //           });
-  //         });
-  //     } else {
-  //       res.status(500).json({
-  //         status: status.ERROR,
-  //         message: errorres.error,
-  //       });
-  //     }
-  //   });
-
-});
+  let customertopost = newCustomer;
+   await agclientCreate
+    .createClient(req.body.client_id, customertopost)
+    .then((res) => { //Getting success response here store it to database
+      console.log({ successsucessOne: res.data.customer_id });
+      console.log({ successsucessOne: res.data.customer_uuid});
+    })
+    .catch((errorres) => {
+      //console.log({ errorreserrorreserrorres: errorres });
+      if (errorres.statuscode && errorres.statuscode == 401) {
+        //Token Expire call it max five time
+        agclientCreate
+          .createClient(req.body.client_id, customertopost, true)
+          .then((dupres) => {
+        })
+        .catch((duperr) => {
+          res.status(500).json({
+            status: status.ERROR,
+            message: duperr.error,
+          });
+        });
+      } else {
+        res.status(500).json({
+          status: status.ERROR,
+          message: errorres.error,
+        });
+      }
+    });
+  });
 
 routes.put("/:id", async (req, res, next) => {
   try {
