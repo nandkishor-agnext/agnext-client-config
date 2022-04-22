@@ -1,4 +1,5 @@
 module.exports = function(req, res, next) {
+  console.log({'rererererq':req});
     const message = {};
     if(req.responseObject){
       message.data = req.responseObject;
@@ -12,6 +13,7 @@ module.exports = function(req, res, next) {
     //message.success = true;
     //message.status = req.responseStatus || 200;
    // message.status =
+   
     res.status(req.responseStatusCode || 200).send(message);
     //return next();
   };

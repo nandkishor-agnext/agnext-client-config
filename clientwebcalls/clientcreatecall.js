@@ -4,39 +4,50 @@ var FormData = require('form-data');
 const { resolve } = require('path');
 const agclienthelper= require('../agclients/agclienthelper');
 
-async function createClient(clientId,agclientpostData,tokenexpire=false){   
-  let token = await agclienthelper.getToken(clientId,tokenexpire);
-  return  await createagClientapicall(token,agclientpostData)  
-  //.then(res => {
-    //return res;
-  //}).
-  // catch(errorres=>{
-  //   throw errorres;
-  // });
+async function createClient(clientId,agclientpostData,tokenexpire=false){  
+  
+  let tokenObject = await agclienthelper.getTokenObject(clientId,tokenexpire);
+  
+  return  await createagClientapicall(tokenObject,agclientpostData)  
+  
 
 
 }
 
-async function createagClientapicall(token,postdata){
-
+async function createagClientapicall(tokenObject,postdata){
+  
   return new Promise((resolve,reject)=>{
     
     const headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer '+token
+        'Authorization': 'Bearer '+tokenObject.token
       }
-
-    const api = axios.create({baseURL: 'http://aryadevback.qualixag.club'});
+     let weburl = "http://"+tokenObject.baseUrl; 
+    //const api = axios.create({baseURL: 'https://aryadevback.qualixag.club'});
+   const api = axios.create({baseURL: weburl});
     api.post('/api/customer', postdata,{
     headers: headers
   })
     .then(res => {   
-      console.log('then createagClientapicall');   
+     
       resolve(res)
     })
     .catch(error => {      
-      console.log('catch createagClientapicall');       
-      reject({statuscode:error.response.status,error:error.response.data});      
+    //console.log({'errortestetstsetsetet':error})
+    if(error.response && error.response.data){
+      let errorObj = error.response.data;
+      errorObj.statuscode=error.response.status;
+      reject(errorObj);
+    }
+    else if(error.response){
+     
+      reject(error.response);
+    }
+    else{
+     
+     reject(error);
+    }
+    
     });
   });
 }

@@ -39,21 +39,20 @@ routes.get("/:id", async (req, res, next) => {
 });
 
 routes.post("/", async (req, res, next) => {
-  
+  //let customer=null;
   try{
     
-    const existingCustomer = false; // await QualixCustomer.findOne({ $or: [ { email: req.body.email }, { contact_number: req.body.contact_number } ] });
-    //console.log({'existingCustomer':existingCustomer});
-    if(existingCustomer) return res.status(400).send('Customer Email or Contact Number already exists.');   
-      const customer = new QualixCustomer({
+    const existingCustomer =  await QualixCustomer.findOne({ $or: [ { email: req.body.email }, { contact_number: req.body.contact_number } ] });    
+    if(existingCustomer) return res.status(400).send('Customer Email or Contact Number already exists.');
+
+      let customer = new QualixCustomer({
         name:req.body.name,
-        email:req.body.email,
-      //  password:req.body.password,
+        email:req.body.email,      
         contact_number:req.body.contact_number,
         gst:req.body.gst,
         pan:req.body.pan,
         commodity_category_ids:req.body.commodity_category_ids,
-        address: getAddress(req.body.address), //{address1:req.body.address1,country:req.body.country,state:req.body.state,city:req.body.city,pincode:req.body.pincode},
+        address: getAddress(req.body.address),
         user:{
           first_name:req.body.user.first_name,
           last_name:req.body.user.last_name,
@@ -62,58 +61,44 @@ routes.post("/", async (req, res, next) => {
           roles:req.body.user.roles,
           user_hierarchy:req.body.user.user_hierarchy,
           is_2fa_required:req.body.user.is_2fa_required,
-          address:getAddress(req.body.user.address),//{
-          //   address1:req.body.user.address.address1,
-          //   country:req.body.user.address.country,
-          //   state:req.body.user.address.state,
-          //   city:req.body.user.address.city,
-          //   pincode:req.body.user.address.pincode},
+          address:getAddress(req.body.user.address),
         },
         agClient_id: req.body.agClient_id,
         isactive:true,
         isActive:true
-      });
-
-      const newCustomer = await customer.save();
-      req.responseObject = {data:newCustomer,seasons:defaultSeasons(),dtrVariables:defaultDTRs()};
-      req.responseStatus = status.SUCCESS;
-      req.responseStatusCode = 201;
-      next();
+      });     
+      
+      let customertopost = customerMapping(customer);  
+     // console.log('calling here one');
+      await createCustomersOnOtherPlatform(req.body.agClient_id,customertopost)
+      .then(async res =>{
+        console.log({'customerOnClientPlatform':res});
+                 
+        customer.enviornment_customer_id = res.customer_uuid;
+        const newCustomer = await customer.save();
+        req.responseObject = {data:newCustomer,seasons:defaultSeasons(),dtrVariables:defaultDTRs()};
+        req.responseStatus = status.SUCCESS;
+        req.responseStatusCode = 201;
+        next();
+      })     
+      .catch(error => {        
+        res.status(400).json({
+          status: status.ERROR,
+          message:error
+        });
+      });      
+      
+     // next();
   }
   catch(err){
+    
     res.status(500).json({
       status: status.ERROR,
       message:err.message
     });
   }
-  let customertopost = newCustomer;
-   await agclientCreate
-    .createClient(req.body.client_id, customertopost)
-    .then((res) => { //Getting success response here store it to database
-      console.log({ successsucessOne: res.data.customer_id });
-      console.log({ successsucessOne: res.data.customer_uuid});
-    })
-    .catch((errorres) => {
-      //console.log({ errorreserrorreserrorres: errorres });
-      if (errorres.statuscode && errorres.statuscode == 401) {
-        //Token Expire call it max five time
-        agclientCreate
-          .createClient(req.body.client_id, customertopost, true)
-          .then((dupres) => {
-        })
-        .catch((duperr) => {
-          res.status(500).json({
-            status: status.ERROR,
-            message: duperr.error,
-          });
-        });
-      } else {
-        res.status(500).json({
-          status: status.ERROR,
-          message: errorres.error,
-        });
-      }
-    });
+  
+
   });
 
 routes.put("/:id", async (req, res, next) => {
@@ -156,6 +141,91 @@ routes.delete("/:id", async (req, res, next) => {
     });
   }
 });
+
+async function createCustomersOnOtherPlatform(agClient_id,customertopost){
+  let clientData=null;
+  await agclientCreate
+  .createClient(agClient_id, customertopost)
+  .then((res) => { 
+    //console.log({'resresresrreone':res});    
+    console.log({'resresresrreonedatatatatatat':res.data});    
+    clientData = res.data;
+  })
+  .catch(async (errorres) => {
+    //console.log({'errorreserrorreserrorreserrorreserrorres9999999':errorres});
+    if (errorres.statuscode && errorres.statuscode == 401) {
+      
+       await agclientCreate
+        .createClient(agClient_id, customertopost, true)
+        .then((dupres) => {    
+          console.log({'dupresdupresdupresdupresdupres':dupres});          
+          clientData = dupres.data;
+         })
+      .catch((duperror) => {
+       
+      
+      throw duperror
+        
+      });
+    }
+     else {
+      
+     
+      throw errorres; 
+      
+    }
+  });
+
+  return clientData;
+}
+
+function customerMapping(newCustomer){
+// console.log({'customerMapping':newCustomer});
+// console.log({'customerMapping.address':newCustomer.address});
+// console.log({'newCustomer.user.address':newCustomer.user.address});
+  let customertopost = {
+    name: newCustomer.name,
+    email: newCustomer.email,
+    contact_number: newCustomer.contact_number,
+    gst: newCustomer.gst,
+    pan: newCustomer.pan,
+    partner_id: "",
+    is_partner: false,
+    commodity_category_ids: [],
+    address : [
+      {
+        address1: newCustomer.address.length ? newCustomer.address[0].address1:'',
+        country: newCustomer.address.length ? newCustomer.address[0].country:'', 
+        state: newCustomer.address.length ? newCustomer.address[0].state:'',
+        city: newCustomer.address.length ? newCustomer.address[0].city:'',
+        pincode: newCustomer.address.length ? newCustomer.address[0].pincode:'',
+      }
+    ],
+    bank_details: [
+      { bank_name: "", branch: "", bank_account_number: "", ifsc: "" },
+    ],
+    user: {
+      first_name: newCustomer.user.first_name,
+      last_name: newCustomer.user.last_name,
+      email: newCustomer.user.email,
+      contact_number: newCustomer.user.contact_number,
+      roles: ["admin"],
+      user_hierarchy: "admin",
+      is_2fa_required: 1,
+      address: [
+        {
+          address1: newCustomer.user.address.length ? newCustomer.user.address[0].address1:'',
+          country: newCustomer.user.address.length ? newCustomer.user.address[0].country:'',
+          state: newCustomer.user.address.length ? newCustomer.user.address[0].state:'',
+          city: newCustomer.user.address.length ? newCustomer.user.address[0].city:'',
+          pincode: newCustomer.user.address.length ? newCustomer.user.address[0].pincode:'',
+        },
+      ],
+    },
+  };
+
+  return customertopost;
+}
 
 function getTempCustomer() {
   let customertopost = {

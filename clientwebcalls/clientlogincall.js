@@ -77,7 +77,7 @@ var reqGet = http.request(optionsget, function(res) {
 
 reqGet.end();
 reqGet.on('error', function(e) {
- // console.error('Error while getting cookie information'+e);
+  //console.error('Error while getting cookie information'+e);
  throw { name: 'Error', message: 'Step One Error while getting cookie information('+e+')' };
 });
 

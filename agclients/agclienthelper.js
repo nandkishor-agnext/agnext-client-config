@@ -1,24 +1,25 @@
 const { AGClient } = require("../models/agclient");
 const clientloginwebcall = require('../clientwebcalls/clientlogincall');
 
-async function getToken(agclientId,tokenexpire=false){   
+async function getTokenObject(agclientId,tokenexpire=false){   
+  
     let  agclient = await AGClient.findById(agclientId); 
     if(!agclient){
       throw { name: 'Error', message: 'Client Not Found in Our Records.' };
-    }
+    }    
 
     if(!agclient.clientdetail || tokenexpire){
-      const clientInfo = await clientloginwebcall(agclient);
+      const clientInfo = await clientloginwebcall(agclient);      
       agclient.clientdetail = JSON.stringify(clientInfo);
       agclient = await agclient.save();
-      return clientInfo.access_token;
+      return {token : clientInfo.access_token,baseUrl:agclient.urlhost};
       }
       else{
-      let tempclient = JSON.parse(agclient.clientdetail);
-      return tempclient.access_token;
+      let tempclient = JSON.parse(agclient.clientdetail);      
+      return {token:tempclient.access_token,baseUrl:agclient.urlhost};
       }       
 }
 
 
-module.exports.getToken = getToken;
+module.exports.getTokenObject = getTokenObject;
  
