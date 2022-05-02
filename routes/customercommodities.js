@@ -26,8 +26,8 @@ routes.get('/',async(req,res,next)=>{
 routes.get('/:id',async(req,res,next) =>{
 
     try{
-        const customercom = await CustomerCommodities.findById(req.params.id);
-        if(!customercom) return res.status(401).send('Customer Commodities Not Found');
+        const customercom = await CustomerCommodities.find({'customerDetails.customerId': req.params.id});
+        if(!customercom) return res.status(404).send('Customer Commodities Not Found');
         req.responseObject = customercom;        
         req.responseStatus = status.SUCCESS;
         req.responseStatusCode = 200;
