@@ -13,12 +13,15 @@ const varietySchema =  new mongoose.Schema({
     analysis:[analysisSchema]
 });
 const commoditySchema =  new mongoose.Schema({
-    categoryId:{type:String,required:true},
-    categoryName:{type:String,required:true},
     commodityId:{type:String,required:true},
     commodityName: {type:String,required:true},
     varieties:[varietySchema]
 });
+const categorySchema = new mongoose.Schema({
+    categoryId:{type:String,required:true},
+    categoryName:{type:String,required:true},
+    commodities:[commoditySchema]
+})
 
 const CustomerCommodities = mongoose.model('CustomerCommodity',new mongoose.Schema({
     customerDetails: {
@@ -41,7 +44,7 @@ const CustomerCommodities = mongoose.model('CustomerCommodity',new mongoose.Sche
             required:true
         }
     },
-    commodities:[commoditySchema],
+    mappedData:[categorySchema],
     isActive: {
         type:Boolean,
         default:true
