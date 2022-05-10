@@ -27,7 +27,7 @@ routes.get('/:id',async(req,res,next) =>{
 
     try{
         const customercom = await CustomerCommodities.find({'customerDetails.customerId': req.params.id});
-        if(!customercom) return res.status(404).send('Customer Commodities Not Found');
+        if(customercom.length === 0) return res.status(404).send('Customer Commodities Not Found');
         req.responseObject = customercom;        
         req.responseStatus = status.SUCCESS;
         req.responseStatusCode = 200;
@@ -48,10 +48,9 @@ routes.post('/', async (req,res,next) =>{
     try{       
         
         const customer = new CustomerCommodities({
-            customerId:req.body.customerId,
-            customerName:req.body.customerName,
-
-            commodities:req.body.commodity_mapped,            
+            customerDetails: req.body.customerDetails,
+            userDetails: req.body.userDetails,
+            mappedData: req.body.mappedData,            
             isActive:true
         });        
 
@@ -72,29 +71,28 @@ routes.post('/', async (req,res,next) =>{
 
 routes.put('/:id', async(req,res,next) =>{
     try{
-    let customer = await CustomerCommodities.findById(req.params.id);
-    if(!customer) return res.status(401).send('Customer Not Found');
+        let customer = await CustomerCommodities.find({'customerDetails.customerId': req.params.id});
 
-    customer.name=req.body.name;
-    customer.email=req.body.email; 
-    customer.mobile=req.body.mobile;
-    customer.gst=req.body.gst;
-    customer.pan=req.body.pan;
-    customer.cin=req.body.cin;
-   //customer.address= tempaddress;
+        if(!customer) return res.status(401).send('Customer Not Found');
 
-    customer = await customer.save();
-    req.responseObject = customer;        
-    req.responseStatus = status.SUCCESS;
-    req.responseStatusCode = 200;
-    next();
+        console.log('customer[0]', customer[0]);
+
+        customer[0].customerDetails = req.body.customerDetails,
+        customer[0].userDetails = req.body.userDetails,
+        customer[0].mappedData = req.body.mappedData,   
+
+        customer = await customer[0].save();
+        req.responseObject = customer;        
+        req.responseStatus = status.SUCCESS;
+        req.responseStatusCode = 200;
+        next();
     }
     catch(err){
         
         res.status(500).json({
             status: status.ERROR,            
             message:err.message
-          });
+        });
     }
 });
 

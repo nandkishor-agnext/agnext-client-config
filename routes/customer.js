@@ -112,6 +112,7 @@ routes.put("/:id", async (req, res, next) => {
     customer.gst = req.body.gst;
     customer.pan = req.body.pan;
     customer.cin = req.body.cin;
+    customer.commodity_category_ids = req.body.commodity_category_ids
     // customer.address= tempaddress;
 
     customer = await customer.save();
